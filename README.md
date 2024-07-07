@@ -18,7 +18,7 @@ and returns as output:
 pip install pillow
 ```
 
-
+## Inputs
 | key | value | necessary? | Desc |
 |-----|-------|------------|------|
 | file | your file .pdf | :heavy_check_mark: | method=post - type=multipart |
