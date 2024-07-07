@@ -36,6 +36,6 @@ pip install pillow
 |**ValError**|You probably forgot to send the **name** variable|
 |**NoFile**| It means that it did not find a file, so maybe you forgot to send a file or you sent a file with the wrong format. |
 
-
+## Test
 test the example
 **Point**: you can send file with postman and this work fine But pay attention to CORS in other cases. so I have commented the related items in the settings file
