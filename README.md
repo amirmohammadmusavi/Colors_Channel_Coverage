@@ -21,7 +21,7 @@ pip install pillow
 
 | key | value | necessary? | Desc |
 |-----|-------|------------|------|
-| file | your file .pdf | :heavy_check_mark: | - |
+| file | your file .pdf | :heavy_check_mark: | method=post - type=multipart |
 | NAME | your custome name | - | output -> { ..., "Default": [ ... , {'name':**file_name**,'coverage':**int**,'w':**int(MM)**,'h':**int(MM)**} ,...] , ... } |
 |IPATH| your custome path | - | Where the input file is saved. Please note that the input PDF file must be saved as file.pdf |
 |OPATH| your custome path | - | Where the output file is going to be saved |
@@ -35,3 +35,7 @@ pip install pillow
 |-----|-------------|
 |**ValError**|You probably forgot to send the **name** variable|
 |**NoFile**| It means that it did not find a file, so maybe you forgot to send a file or you sent a file with the wrong format. |
+
+
+test the example
+**Point**: you can send file with postman and this work fine But pay attention to CORS in other cases. so I have commented the related items in the settings file
