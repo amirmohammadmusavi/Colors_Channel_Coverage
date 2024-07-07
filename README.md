@@ -18,10 +18,10 @@ and returns as output:
 pip install pillow
 ```
 
-
+## Inputs
 | key | value | necessary? | Desc |
 |-----|-------|------------|------|
-| file | your file .pdf | :heavy_check_mark: | - |
+| file | your file .pdf | :heavy_check_mark: | method=post - type=multipart |
 | NAME | your custome name | - | output -> { ..., "Default": [ ... , {'name':**file_name**,'coverage':**int**,'w':**int(MM)**,'h':**int(MM)**} ,...] , ... } |
 |IPATH| your custome path | - | Where the input file is saved. Please note that the input PDF file must be saved as file.pdf |
 |OPATH| your custome path | - | Where the output file is going to be saved |
