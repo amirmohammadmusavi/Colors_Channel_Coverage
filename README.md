@@ -38,4 +38,7 @@ pip install pillow
 
 ## Test
 test the example
+```
+pip install django
+```
 **Point**: you can send file with postman and this work fine But pay attention to CORS in other cases. so I have commented the related items in the settings file
