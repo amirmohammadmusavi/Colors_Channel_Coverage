@@ -4,7 +4,7 @@ and returns as output:
 
 1- The percentage used of each color (C, M, Y, K, Pantone, Spots...) Along with the photo
 
-2- width and heught of each color channel ( For example, in the magenta channel, you have some color density in the coordinates (0,0) and you have some in the coordinates (10,20), so the width and height it gives you in the output are 20px and 10px, respectively, which are in Returns the unit of millimeters. )
+2- width and height of each color channel ( For example, in the magenta channel, you have some color density in the coordinates (0,0) and you have some in the coordinates (10,20), so the width and height it gives you in the output are 20px and 10px, respectively, which are in Returns the unit of millimeters. )
 
 3- TAK (printing term meaning high density of color)
 
