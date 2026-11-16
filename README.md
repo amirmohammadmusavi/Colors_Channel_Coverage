@@ -1,44 +1,276 @@
-This module receives a PDF file ( Multipart ) as input
+# PDF Color Coverage Analyzer
 
-and returns as output:
+A Python-based tool for analyzing PDF files used in printing and prepress workflows.
 
-1- The percentage used of each color (C, M, Y, K, Pantone, Spots...) Along with the photo
+This module separates PDF colors into individual channels using **Ghostscript** and analyzes their color coverage, dimensions, and ink density.
 
-2- width and height of each color channel ( For example, in the magenta channel, you have some color density in the coordinates (0,0) and you have some in the coordinates (10,20), so the width and height it gives you in the output are 20px and 10px, respectively, which are in Returns the unit of millimeters. )
+It supports standard CMYK colors, Pantone colors, and spot colors.
 
-3- TAK (printing term meaning high density of color)
+## Features
 
-4- In offset printing machines, there are valves to adjust the colors, the amount of adjustment of these will returns too.
+The module provides the following analysis capabilities:
+
+### 1. Color Separation & Coverage
+
+Separates the PDF into individual color channels and calculates the ink coverage percentage of each channel.
+
+Supported channels include:
+- Cyan (C)
+- Magenta (M)
+- Yellow (Y)
+- Black (K)
+- Pantone colors
+- Spot colors
+
+The generated color separations are also converted into JPEG images.
+
+### 2. Color Dimensions
+
+Calculates the approximate width and height of the colored area in each channel.
+
+For example, if the Magenta channel contains printed content between certain pixel coordinates, the module estimates the dimensions of that colored area and returns them in millimeters.
+
+### 3. TAK (Total Area Coverage)
+
+Generates a visual representation of areas with high combined ink density.
+
+TAK is a printing-related measurement used to identify regions where the total ink coverage exceeds a specified threshold.
+
+The output is a heatmap-style image highlighting areas with high ink density.
+
+### 4. Color Adjustment Analysis
+
+Provides information that can be used to assist with color adjustment in offset printing machines.
+
+The analysis can help identify the distribution of ink coverage across different sections of the printed document.
+
+### 5. Partial Color Calculation
+
+Optionally divides each color separation into smaller vertical sections and calculates the ink coverage of each section independently.
+
+This feature can be useful for analyzing ink distribution across the printing area.
+
+---
 
 ## Dependencies
-1- **[Ghostscript](https://ghostscript.com/releases/gsdnld.html)** 
 
-2- **[Pillow](https://pypi.org/project/pillow/)**
+### 1. Ghostscript
+
+Required for separating PDF files into individual color channels.
+
+Download and install:
+
+https://ghostscript.com/releases/gsdnld.html
+
+Make sure Ghostscript is accessible through your system's PATH.
+
+### 2. Pillow
+
+Used for image processing and color coverage calculations.
+
+```bash
+pip install Pillow
 ```
-pip install pillow
+
+### 3. Django (Optional)
+
+Required only when integrating or testing the module through a Django application.
+
+```bash
+pip install Django
 ```
 
-## Inputs
-| key | value | necessary? | Desc |
-|-----|-------|------------|------|
-| file | your file .pdf | :heavy_check_mark: | method=post - type=multipart |
-| NAME | your custome name | - | output -> { ..., "Default": [ ... , {'name':**file_name**,'coverage':**int**,'w':**int(MM)**,'h':**int(MM)**} ,...] , ... } |
-|IPATH| your custome path | - | Where the input file is saved. Please note that the input PDF file must be saved as file.pdf |
-|OPATH| your custome path | - | Where the output file is going to be saved |
-|PART_CALCULATE| True | - | output -> { ..., "PartCal": [ ... , {'name':**file_name**,'coverage':**int**,'data':[**int**,**int**,...],'path': "path/name.jpeg"} , ... ] , ... } |
-|TAK| True | - | output -> { ... ,  "Tak": **path** , ...}|
-| TAK_SIZE | number | - | output -> same as **tak** |
+---
 
+## Input Parameters
 
-**errors**:
-| key | Description |
-|-----|-------------|
-|**ValError**|You probably forgot to send the **name** variable|
-|**NoFile**| It means that it did not find a file, so maybe you forgot to send a file or you sent a file with the wrong format. |
+The module uses the following parameters:
 
-## Test
-test the example
+| Parameter | Description | Required | Default |
+|---|---|---|---|
+| `file` | PDF file uploaded using `multipart/form-data` | Yes (API integration) | - |
+| `NAME` | Custom name for the output directory | No | `file` |
+| `IPATH` | Directory where the input PDF is stored | No | `image_inputs/` |
+| `OPATH` | Directory where generated files are saved | No | `Output/static/Projects_Data/` |
+| `CHANGE_N` | Automatically generates a different directory name if a naming conflict exists | No | `False` |
+| `PART_CALCULATE` | Enables partial color coverage calculation | No | `False` |
+| `TAK` | Enables TAK calculation and image generation | No | `False` |
+| `TAK_SIZE` | Custom threshold for TAK visualization | No | Default threshold |
+
+**Important:** The uploaded PDF must be saved as `file.pdf` inside the directory specified by `IPATH` before calling `Channel_Coverage()`.
+
+The output directories should end with a path separator (`/`).
+
+### Function Signature
+
+```python
+Channel_Coverage(
+    IPATH='image_inputs/',
+    OPATH=False,
+    NAME=False,
+    CHANGE_N=False,
+    PART_CALCULATE=False,
+    TAK=False,
+    TAK_SIZE=False
+)
 ```
-pip install django
+
+---
+
+## Output Structure
+
+The function returns a Python dictionary containing the analysis results.
+
+### 1. Default
+
+`Default` contains the calculated coverage and approximate dimensions of each color channel.
+
+Example:
+
+```python
+{
+    "Default": [
+        {
+            "name": "Cyan",
+            "coverage": 25,
+            "w": "120 mm",
+            "h": "180 mm"
+        },
+        {
+            "name": "Magenta",
+            "coverage": 35,
+            "w": "110 mm",
+            "h": "175 mm"
+        },
+        {
+            "name": "Yellow",
+            "coverage": 15,
+            "w": "100 mm",
+            "h": "160 mm"
+        },
+        {
+            "name": "Black",
+            "coverage": 20,
+            "w": "120 mm",
+            "h": "180 mm"
+        },
+        {
+            "name": "CMYK",
+            "coverage": 23.75
+        }
+    ]
+}
 ```
-**Point**: you can send file with postman and this work fine But pay attention to CORS in other cases. so I have commented the related items in the settings file
+
+**Note:** The CMYK value is calculated as the average coverage of the four standard CMYK channels. It is not the total ink coverage.
+
+### 2. DefPath
+
+Contains the path to the composite image generated by Ghostscript.
+
+```python
+{
+    "DefPath": "Output/static/Projects_Data/file-123456/c.jpeg"
+}
+```
+
+### 3. PartCal
+
+Available when `PART_CALCULATE=True`.
+
+Contains the overall coverage and individual coverage values for each vertical section.
+
+```python
+{
+    "PartCal": [
+        {
+            "name": "Cyan",
+            "coverage": 25,
+            "data": [10, 20, 35, 40, 15],
+            "path": "Output/static/Projects_Data/file-123456/Cyan.jpeg"
+        }
+    ]
+}
+```
+
+Each value in `data` represents the calculated ink coverage of a vertical section.
+
+The section width is based on a 70-pixel interval.
+
+### 4. Tak
+
+Available when `TAK=True`.
+
+Contains the path to the generated TAK visualization.
+
+```python
+{
+    "Tak": [
+        "Output/static/Projects_Data/file-123456/tak.jpg"
+    ]
+}
+```
+
+The visualization uses different colors to represent different ink density levels.
+
+---
+
+## Error Handling
+
+The function may return the following error messages:
+
+| Error | Description |
+|---|---|
+| `AlreadyExists` | An output directory with the specified name already exists and cannot be reused. |
+| `NoFile` | The input PDF file was not found at the expected location. |
+
+**Important:** The input PDF must exist as `file.pdf` inside `IPATH`.
+
+---
+
+## Usage
+
+### Python Integration
+
+```python
+from your_module import Channel_Coverage
+
+result = Channel_Coverage(
+    IPATH='image_inputs/',
+    OPATH='Output/static/Projects_Data/',
+    NAME='my_project',
+    PART_CALCULATE=True,
+    TAK=True
+)
+
+print(result)
+```
+
+Before executing the function, make sure that `file.pdf` has been placed inside `image_inputs/`.
+
+### API Testing
+
+If the module is integrated into a Django application, you can test the upload endpoint using Postman.
+
+1. Select `POST` as the HTTP method.
+2. Set the request body to `form-data`.
+3. Add a field named `file`.
+4. Set its type to `File`.
+5. Select your PDF document.
+6. Send the request.
+
+The API integration must save the uploaded file as `file.pdf` before calling the analysis function.
+
+---
+
+## Important Notes
+
+- Ghostscript must be installed and accessible through the system PATH.
+- The input PDF must be saved as `file.pdf`.
+- Output directories must be writable.
+- Generated TIFF files are converted to JPEG images and then removed.
+- The original input PDF is also deleted after successful processing.
+- When using this module through a web application, configure CORS appropriately if requests originate from a different domain.
+- The `TAK_SIZE` parameter can be used to customize the ink density threshold.
+
+---
